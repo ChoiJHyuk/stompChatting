@@ -1,0 +1,14 @@
+<html layout:decorate="~{home}">
+<div layout:fragment="content" class="container">
+    <form th:action="@{/room/create}" th:object="${roomForm}" method="post">
+        <h3 class="my-3">방 만들기</h3>
+        <div th:replace="~{fragments/error :: errorFragment}"></div>
+        <div class="mb-3">
+            <input type="text" th:field="*{name}" class="form-control" placeholder="방 이름">
+        </div>
+        <div class="my-2 d-flex justify-content-end">
+            <input type="submit" value="방 만들기" class="btn btn-primary">
+        </div>
+    </form>
+</div>
+</html>

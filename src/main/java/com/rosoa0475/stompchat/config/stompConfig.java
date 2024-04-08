@@ -12,7 +12,7 @@ public class stompConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-stomp") // 클라이언트에서 소켓을 생성할 때 여기에 정의한 문자열로 해야 함
-                .setAllowedOrigins("*")
+                .setAllowedOrigins("http://localhost:8080")
                 .withSockJS(); // 클라이언트와 연결은 SockJS로 함을 명시
     }
 

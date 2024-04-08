@@ -1,0 +1,64 @@
+<html layout:decorate="~{home}">
+<div layout:fragment="content" class="container my-3">
+    <input type="hidden" name="username" th:value="${name}"  id="name" />
+    <input type="hidden" name="username" th:value="${chatRoom.id}"  id="roomId" />
+    <div class="chat-center-layout">
+        <h3 th:text="${chatRoom.name}"></h3>
+        <section class="section">
+            <div class="card">
+                <div class="card-body pt-4 bg-grey" id="id_chat">
+                    <div id="chat-content">
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="message-form d-flex flex-direction-column align-items-center">
+                        <a href="http://" class="black"><i data-feather="smile"></i></a>
+                        <div class="d-flex flex-grow-1 ml-4">
+                            <input type="text" class="form-control" id="msg" name="context"
+                                   placeholder="Type your message..">
+                            <button type="submit" class="submit-btn" id="button-send">전송</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+</html>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<script th:inline="javascript">
+    var stompClient = null;
+    var roomId = $("#roomId").val();
+    var sender = $("#name").val();
+    //스크립트에서 타임리프가 안 먹혀 저장된 채팅메세지 불러오는 것은 포기
+    var socket = new SockJS("/ws-stomp"); // SockJS를 새로 만든다. 이 때 문자열은 endpoint로 설정한다.
+    stompClient = Stomp.over(socket); // SockJS가 Stomp 프로토콜 위에서 동작하도록 한다.
+    // 아래의 connect()는 서버와 연결할 때 사용하는 함수로 {} 안에는 같이 전송할 헤더를 설정하는 것이고 function(frame)은 콜백함수로서
+    // 서버와 성공적으로 연결되었을 시에 시행할 동작들을 넣어주면 된다.
+    stompClient.connect({}, function (frame) {
+        // subscribe() 함수로 현재 클라이언트가 구독할 topic과 서버에서 @SendTo로 메세지를 보냈을 때 메세지를 받아서 처리할 함수를 정의해주면 된다.
+        stompClient.subscribe('/topic/' + roomId, function (frame) {
+            showChat(JSON.parse(frame.body)); //frame의 body는 서버에서 전송한 데이터를 의미한다.
+        });
+    });
+    $("#button-send").on("click", function (e) {
+        // 클라이언트에서 서버로 메세지를 전송할 때는 send()함수를 이용하면 된다. 두 번째 인자는 frame을 전송할 때 같이 보낼 헤더를 설정하는 것이다.
+        stompClient.send("/send/" + roomId, {},
+            JSON.stringify({
+                'sender': sender,
+                'message': $("#msg").val()
+            }));
+        $('#msg').val('');
+    });
+
+    function showChat(chatMessageDTO) {
+        $("#chat-content").append(
+            "<div class = 'chat'><div class='chat-body'><div class='chat-message' id='id_chat'>" +
+            "<tr><td>" + "[" + chatMessageDTO.sender + "] " + chatMessageDTO.message + "</td></tr>" +
+            "</div></div></div>"
+        );
+    }
+</script>

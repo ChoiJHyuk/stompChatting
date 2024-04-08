@@ -1,0 +1,6 @@
+<html layout:decorate="~{home}">
+<div layout:fragment="content" class="container my-3">
+    <a class="btn btn-primary mx-2" th:each="room : ${rooms}" th:text="${room.name}" th:href="@{|/chat/chatRoom?roomId=${room.id}|}" role="button"></a>
+    <a class="btn btn-primary" th:href="@{/room/create}" role="button">대화방 만들기</a>
+</div>
+</html>
